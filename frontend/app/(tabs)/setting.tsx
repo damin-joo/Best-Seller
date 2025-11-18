@@ -30,8 +30,6 @@ export default function Settings() {
             </View>
 
             <Text style={GlobalStyles.title}> </Text>
-            <Button title="Re-Crawl"></Button>
-
         </ScrollView>
     );
 }

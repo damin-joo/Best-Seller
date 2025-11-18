@@ -31,13 +31,23 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
+credentials.json
+personalMemo.txt
 
 # typescript
 *.tsbuildinfo
 
 app-example
+expo-env.d.ts
 
 # generated native folders
 /ios
 /android
+
+# Ignore browser profile artifacts from scraping
+backend/scrappers/gibert_profile/
+frontend/android/app/src/main/res/
+frontend/android
+

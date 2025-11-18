@@ -21,8 +21,11 @@ export default function Index() {
     return <Ranking/>;
   }
 
-  const filterCol = (data: string[][], countryIndex: number): string[][] =>
-    data.map((row) => row.slice(countryIndex * 5 + 1, countryIndex * 5 + 6));
+  const filterCol = (
+    data: string[][], 
+    countryIndex: number): string[][] =>
+      data.map((row) => row.slice(countryIndex * 5 + 1, countryIndex * 5 + 6)
+  );
 
 
   return (

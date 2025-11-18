@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "google-auth-library": "^10.5.0",
+    "googleapis": "^165.0.0",
+    "puppeteer": "^24.29.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}

@@ -5,10 +5,11 @@ import { useLanguage } from "../context/Context";
 import { GlobalStyles } from "../styles/global";
 
 export default function Ranking() {
-    const titles = ["종합 주간 베스트 30", "Weekly Best 30", "일본말 30"];
+    const titles = ["종합 주간 베스트 20", "Weekly Best 20", "Japanese Books Top 20", "Taiwanese Books Top 20", "Francais Books Top 20"];
     const [languageTitle, setLanguageTitle] = useState("");
     const [showHome, setShowHome] = useState(false);
-    const { language, country, translations, filteredData, loading, fetchSheets } = useLanguage();
+    const [showDetails, setShowDetails] = useState(false);
+    const { language, country, translations, filteredData, loading } = useLanguage();
 
     useEffect(() => {
         setLanguageTitle(titles[language] || "");
@@ -26,22 +27,27 @@ export default function Ranking() {
     if(showHome) {
         return <Home/>;
     }
+
+    if(showDetails) {
+        
+    }
     
     return (
         <>
             <FlatList
-                contentContainerStyle={GlobalStyles.container} // replaces ScrollView
+                contentContainerStyle={GlobalStyles.container}
                 ListHeaderComponent={
                     <Text style={GlobalStyles.title}>
                         {languageTitle} {translations.slice(1)[country][language]}
                     </Text>
                 }
-                data={filteredData.slice(1)} // skip header row
-                numColumns={3}               // 3 books per row
+                data={filteredData.slice(1)}
+                numColumns={2}           
                 keyExtractor={(item, index) => index.toString()}
-                columnWrapperStyle={GlobalStyles.row} // spacing between rows
+                columnWrapperStyle={GlobalStyles.row}
                 renderItem={({ item, index }) => (
-                    <TouchableOpacity style={GlobalStyles.book} onPress={() => console.log(item[0])}>
+                    <TouchableOpacity style={GlobalStyles.book} onPress={() => setShowDetails(true)}>
+                        <img src="" alt="" />
                         <Text style={{ fontWeight: "bold", fontSize: 20 }}>{index + 1}</Text>
                         <Text style={GlobalStyles.bookTitle}>{item[1]}</Text>
                     </TouchableOpacity>
