@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Button, FlatList, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Button, FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import Home from "../(tabs)/index";
 import { useLanguage } from "../context/Context";
 import { GlobalStyles } from "../styles/global";
 
 export default function Ranking() {
-    const titles = ["종합 주간 베스트 20", "Weekly Best 20", "Japanese Books Top 20", "Taiwanese Books Top 20", "Francais Books Top 20"];
+    const titles = ["종합 주간 베스트 20", "綜合每​​週最佳20名", "Top 20 hebdomadaire complet", "Comprehensive Weekly Best 20", "総合週間ベスト20"];
     const [languageTitle, setLanguageTitle] = useState("");
     const [showHome, setShowHome] = useState(false);
     const [showDetails, setShowDetails] = useState(false);
@@ -41,17 +41,42 @@ export default function Ranking() {
                         {languageTitle} {translations.slice(1)[country][language]}
                     </Text>
                 }
-                data={filteredData.slice(1)}
+                data={filteredData}
                 numColumns={2}           
                 keyExtractor={(item, index) => index.toString()}
                 columnWrapperStyle={GlobalStyles.row}
-                renderItem={({ item, index }) => (
-                    <TouchableOpacity style={GlobalStyles.book} onPress={() => setShowDetails(true)}>
-                        <img src="" alt="" />
-                        <Text style={{ fontWeight: "bold", fontSize: 20 }}>{index + 1}</Text>
-                        <Text style={GlobalStyles.bookTitle}>{item[1]}</Text>
-                    </TouchableOpacity>
-                )}
+                renderItem={({ item, index }) => {
+                    // item is an array of cells for the row; try to find the first URL for the image
+                    const findImage = (cells: any[]) => {
+                        for (const c of cells) {
+                            if (typeof c === "string" && c.startsWith("http")) return c;
+                        }
+                        return undefined;
+                    };
+
+                    const findTitle = (cells: any[]) => {
+                        for (const c of cells) {
+                            if (typeof c === "string" && c && !c.startsWith("http")) return c;
+                        }
+                        return "";
+                    };
+
+                    const imageUri = findImage(item as any[]);
+                    const titleText = findTitle(item as any[]);
+
+                    return (
+                        <TouchableOpacity style={GlobalStyles.book} onPress={() => setShowDetails(true)}>
+                            
+                            <Text style={{ fontWeight: "bold", fontSize: 20 }}>{index + 1}</Text>
+                            <Image
+                                source={imageUri ? { uri: imageUri } : undefined}
+                                style={{ width: 80, height: 120, resizeMode: "cover", marginBottom: 6, borderRadius: 4 }}
+                                accessibilityLabel={titleText}
+                            />
+                            <Text style={GlobalStyles.bookTitle}>{titleText || item[1]}</Text>
+                        </TouchableOpacity>
+                    );
+                }}
             />
             <Button title="Back" onPress={() => setShowHome(true)}></Button>
         </>

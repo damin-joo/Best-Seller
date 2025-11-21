@@ -24,7 +24,7 @@ function readBooksJSON(filename) {
     book.author || "",
     book.writerInfo || "",
     book.contents || "",
-    book.publisherReview || ""
+    book.outline || book.review || ""
   ]);
 
   return rows;

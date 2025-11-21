@@ -33,8 +33,8 @@ export const GlobalStyles = StyleSheet.create({
     marginBottom: 16,
   },
   book: {
-    width: 110,        // book width
-    height: 160,      // book height
+    width: 150,        // book width
+    height: 200,      // book height
     backgroundColor: "#d8b384",
     borderRadius: 6,
     justifyContent: "center",

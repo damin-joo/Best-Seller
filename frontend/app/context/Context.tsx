@@ -28,10 +28,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     // Google Sheet URLs
     const TRANSLATION_URL = "https://docs.google.com/spreadsheets/d/12YyTh3oZQhyKLIjee-TlDmoDAqa_X76v3yIpil3zq4U/export?format=tsv&gid=0&range=A1:G8";
-    const ALADIN_DATA_URL = "https://docs.google.com/spreadsheets/d/12YyTh3oZQhyKLIjee-TlDmoDAqa_X76v3yIpil3zq4U/export?format=tsv&gid=335147367&range=A1:AA21";
-    const KYOBO_DATA_URL = "https://docs.google.com/spreadsheets/d/12YyTh3oZQhyKLIjee-TlDmoDAqa_X76v3yIpil3zq4U/export?format=tsv&gid=2081532940&range=A1:AA21";
+    const KOREA_DATA_URL = "https://docs.google.com/spreadsheets/d/12YyTh3oZQhyKLIjee-TlDmoDAqa_X76v3yIpil3zq4U/export?format=tsv&gid=2081532940&range=A1:AA21";
     const THAIWAN_DATA_URL = "https://docs.google.com/spreadsheets/d/12YyTh3oZQhyKLIjee-TlDmoDAqa_X76v3yIpil3zq4U/export?format=tsv&gid=970940357&range=A1:AA21";
-    const AMAZON_DATA_URL = "https://docs.google.com/spreadsheets/d/12YyTh3oZQhyKLIjee-TlDmoDAqa_X76v3yIpil3zq4U/export?format=tsv&gid=1693299870&range=A1:AA21";
+    const FRANCE_DATA_URL = "https://docs.google.com/spreadsheets/d/12YyTh3oZQhyKLIjee-TlDmoDAqa_X76v3yIpil3zq4U/export?format=tsv&gid=1693299870&range=A1:AA21";
 
     // Parse TSV to array
     const parseTSV = (text: string): string[][] =>
@@ -40,9 +39,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         .split("\n")
         .map((line) => line.split("\t").map((cell) => cell.trim()));
 
-    // Filter columns
+    // Filter columns: always include image (column B, index 1) and the 5 columns C-G
     const filterCol = (data: string[][], startIndex: number): string[][] =>
-        data.map((row) => row.slice(startIndex, startIndex + 5));
+        data.map((col) => [col[1], ...col.slice(startIndex, startIndex + 5)]);
 
     // Fetch a single sheet
     const fetchDocs = async (sheet_url: string): Promise<string[][]> => {
@@ -65,22 +64,42 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setTranslations(parsedTranslations);
 
         // choose which country sheet to load
-        let url = ALADIN_DATA_URL;
-        if (country === 1) url = KYOBO_DATA_URL;
-        else if (country === 2) url = THAIWAN_DATA_URL;
-        else if (country === 3) url = AMAZON_DATA_URL;
+        let url = KOREA_DATA_URL;
+        if (country === 1) url = THAIWAN_DATA_URL;
+        else if (country === 2) url = FRANCE_DATA_URL;
 
         const parsedData = await fetchDocs(url);
         setData(parsedData);
-        
-        // choose slide column
-        let startIndex = 0
-        if (country === 1) startIndex = language * 5 + 2;
-        else if (country === 2) startIndex = language * 5 + 2;
-        else if (country === 3) startIndex = language * 5 + 2;
 
-        const filtered = filterCol(parsedData, startIndex);
-            setFilteredData(filtered);
+        const dataWithoutHeader = parsedData.slice(1);
+
+        //no judgy-- i will edit it out later... with some logic
+        let blockIndex = 0;
+        if (language === 0) {           //korean
+            if (country === 0) blockIndex = 0;
+            else if (country === 1) blockIndex = 1;
+            else if (country === 2) blockIndex = 1;
+        } else if (language === 1) {    //taiwanese
+            if (country === 0) blockIndex = 3;
+            else if (country === 1) blockIndex = 0;
+            else if (country === 2) blockIndex = 4;
+        } else if (language === 2) {    //french
+            if (country === 0) blockIndex = 4;
+            else if (country === 1) blockIndex = 4;
+            else if (country === 2) blockIndex = 0;
+        } else if (language === 3) {    //english
+            if (country === 0) blockIndex = 1;
+            else if (country === 1) blockIndex = 2;
+            else if (country === 2) blockIndex = 2;
+        } else if (language === 4) {    //japenese
+            if (country === 2) blockIndex = 4;
+            else if (country === 1) blockIndex = 3;
+            else if (country === 2) blockIndex = 3;
+        }
+
+        const startIndex = 2 + blockIndex * 5; // column C + block offset
+        const filtered = filterCol(dataWithoutHeader, startIndex);
+        setFilteredData(filtered);
         } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
         } finally {
@@ -91,7 +110,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // load on mount + refetch when language/country changes
     useEffect(() => {
         fetchSheets();
-    }, [country]);
+    }, [country, language]);
 
     return (
         <LanguageContext.Provider

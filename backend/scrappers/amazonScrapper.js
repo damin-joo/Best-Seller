@@ -18,7 +18,7 @@ async function fetchPageBooks(browser) {
 
         const items = document.querySelectorAll('ol li.zg-no-numbers');
         for (let i = 0; i < items.length; i++) {
-            if (books.length >= 20) break;
+            if (books.length >= 30) break;
 
             const li = items[i];
             const detailHref = li.querySelector('div a.a-link-normal')?.href || '';
@@ -44,9 +44,10 @@ async function fetchBookDetail(browser, link) {
     await detailPage.goto(link, { waitUntil: 'networkidle2' });
 
     const data = await detailPage.evaluate(() => {
-        const aboutAuthor = document.querySelector('div.a-cardui-content')?.innerText.trim() || '';
-        const bookSummary = document.querySelector('div.a-container div.a-expander-content')?.innerText.trim() || '';
-        return { writerInfo: aboutAuthor, contents: bookSummary, publisherReview: '' };
+        const contents = document.querySelector('#bookDescription_feature_div div.a-expander-content.a-expander-partial-collapse-content')?.innerText.trim() || '';
+        const review = document.querySelector('#editorialReviews_feature_div div.a-section.a-spacing-small.a-padding-base')?.innerText.trim() || '';
+        const writerInfo = document.querySelector('div._about-the-author-card_style_cardContentDiv__FXLPd div.a-fixed-left-grid-col.a-col-right div.a-cardui-body')?.innerText.trim() || '';
+        return { contents, review, writerInfo };
     });
 
     await detailPage.close();
@@ -72,11 +73,11 @@ export default async function amazonScrapper() {
         );
 
         results.forEach((res, idx) => {
-        const data = res.status === 'fulfilled' ? res.value : { writerInfo: '', contents: '', publisherReview: '' };
-        batchBooks[idx].writerInfo = data.writerInfo;
-        batchBooks[idx].contents = data.contents;
-        batchBooks[idx].publisherReview = data.publisherReview;
-        console.log(`${i + idx + 1}. ${batchBooks[idx].title} ✅`);
+            const data = res.status === 'fulfilled' ? res.value : { contents: '', review: '', writerInfo: '' }; 
+            batchBooks[idx].contents = data.contents;
+            batchBooks[idx].review = data.review;
+            batchBooks[idx].writerInfo = data.writerInfo;
+            console.log(`${i + idx + 1}. ${batchBooks[idx].title} ✅`);
         });
     }
 

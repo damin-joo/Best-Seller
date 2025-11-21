@@ -44,12 +44,12 @@ async function fetchBookDetail(browser, link) {
     await page.goto(link, { waitUntil: "networkidle2" });
     await sleep(1500);
 
-    const data = await page.evaluate(() => {
-        const contentBlock = document.querySelector("div#content");
-        const contentTitle =
-        contentBlock?.querySelector("h3")?.innerText.trim() || "";
-        const contents = contentBlock?.innerText.trim() || "";
-        return { contentTitle, contents };
+    const data = await page.evaluate(() => { 
+        const contents = document.querySelector('body div.container_24.main_wrap.clearfix div.grid_19.alpha div.content:first-of-type')?.innerText.trim() || '';
+        const outline = document.querySelector('#M201105_0_getProdTextInfo_P00a400020009_h2')?.innerText.trim() || '';
+        const writerInfo = document.querySelector('body div.container_24.main_wrap.clearfix div.grid_19.alpha div.content::nth-of-type(2)')?.innerText.trim() || '';
+    
+        return { contents, outline, writerInfo };
     });
 
     await page.close();
@@ -76,13 +76,11 @@ export default async function taiwanScraper() {
         );
 
         results.forEach((res, idx) => {
-        const data =
-            res.status === "fulfilled"
-            ? res.value
-            : { contentTitle: "", contents: "" };
-        batchBooks[idx].contentTitle = data.contentTitle;
-        batchBooks[idx].contents = data.contents;
-        console.log(`${i + idx + 1}. ${batchBooks[idx].title} ✅`);
+            const data = res.status === 'fulfilled' ? res.value : { contents: '', outline: '', writerInfo: '' }; 
+            batchBooks[idx].contents = data.contents;
+            batchBooks[idx].outline = data.outline;
+            batchBooks[idx].writerInfo = data.writerInfo;
+            console.log(`${i + idx + 1}. ${batchBooks[idx].title} ✅`);
         });
     }
 
@@ -90,8 +88,8 @@ export default async function taiwanScraper() {
         fs.writeFileSync(resultPath, JSON.stringify(books, null, 2), 'utf-8');
 
     console.log(`✅ Crawled ${books.length} books`);
-    console.log(`💾 Saved to ${resultPath}`);
-    console.log(`⏱ Done in ${(Date.now() - startTime) / 1000}s`);
+    console.log(`Saved to ${resultPath}`);
+    console.log(`Done in ${(Date.now() - startTime) / 1000}s`);
 
     await browser.close();
 }

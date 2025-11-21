@@ -43,10 +43,10 @@ async function fetchBookDetail(browser, link) {
   await detailPage.goto(link, { waitUntil: 'networkidle2' });
 
   const data = await detailPage.evaluate(() => {
-    const writerInfo = document.querySelector('div.writer_info_box .auto_overflow_inner p.info_text')?.innerText.trim() || '';
-    const contents = document.querySelector('li.book_contents_item')?.innerText.trim() || '';
-    const publisherReview = document.querySelector('div.product_detail_area.book_publish_review .auto_overflow_inner p.info_text')?.innerText.trim() || '';
-    return { writerInfo, contents, publisherReview };
+    const contents = document.querySelector('#scrollSpyProdInfo div.product_detail_area.book_intro div.intro_bottom > div:last-child')?.innerText.trim() || '';
+    const outline = document.querySelector('#scrollSpyProdInfo div.product_detail_area.book_contents div.auto_overflow_wrap div.auto_overflow_contents ul li')?.innerText.trim() || '';
+    const writerInfo = document.querySelector('#scrollSpyProdInfo div.product_detail_area.product_person div.writer_info_box p')?.innerText.trim() || '';
+    return { contents, outline, writerInfo };
   });
 
   await detailPage.close();
@@ -72,20 +72,20 @@ export default async function kyoboScrapper() {
     );
 
     results.forEach((res, idx) => {
-      const data = res.status === 'fulfilled' ? res.value : { writerInfo: '', contents: '', publisherReview: '' };
-      batchBooks[idx].writerInfo = data.writerInfo;
+      const data = res.status === 'fulfilled' ? res.value : { contents: '', outline: '', writerInfo: '' }; 
       batchBooks[idx].contents = data.contents;
-      batchBooks[idx].publisherReview = data.publisherReview;
+      batchBooks[idx].outline = data.outline;
+      batchBooks[idx].writerInfo = data.writerInfo;
       console.log(`${i + idx + 1}. ${batchBooks[idx].title} ✅`);
     });
   }
 
-  const resultPath = path.join(process.cwd(), './json_results/kyobo.json');
+  const resultPath = path.join(process.cwd(), '../json_results/kyobo.json');
   fs.writeFileSync(resultPath, JSON.stringify(books, null, 2), 'utf-8');
 
   console.log(`✅ Crawled ${books.length} books`);
-  console.log(`💾 Saved to ${resultPath}`);
-  console.log(`⏱ Done in ${(Date.now() - startTime) / 1000}s`);
+  console.log(`Saved to ${resultPath}`);
+  console.log(`Done in ${(Date.now() - startTime) / 1000}s`);
   
   await browser.close();
 }
